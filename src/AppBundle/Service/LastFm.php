@@ -2,6 +2,8 @@
 
 namespace AppBundle\Service;
 
+use ErrorException;
+use Exception;
 use LastFmApi\Api\AuthApi;
 use LastFmApi\Api\ArtistApi;
 use LastFmApi\Api\GeoApi;
@@ -77,6 +79,7 @@ class LastFm
 
             return $topTracksInfo;
         } catch (InvalidArgumentException $e) {
+        } catch (Exception $e) {
         }
     }
 }
