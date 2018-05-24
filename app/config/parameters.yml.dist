@@ -18,5 +18,5 @@ parameters:
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
 
-    last_fm_api_key: ~
-    last_fm_api_secret: ~
+    last_fm_api_key: b204e6087c1bfaf7ccc669f500d1beda
+    last_fm_api_secret: b299de008c34db4a10b8a8280173fe4c
