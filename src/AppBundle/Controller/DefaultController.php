@@ -102,7 +102,9 @@ class DefaultController extends Controller
             $spotifyTracks = [];
             foreach ($topTracks as $track) {
                 $spotifyTrack = $api->search(($track['name']." - ".$track['artist']['name']), 'track');
-                $spotifyTracks[] = $spotifyTrack->tracks->items[0]->id;
+                if (isset($spotifyTrack->tracks->items[0])) {
+                    $spotifyTracks[] = $spotifyTrack->tracks->items[0]->id;
+                }
             }
 
             $playlist = $api->createUserPlaylist($api->me()->id, [
