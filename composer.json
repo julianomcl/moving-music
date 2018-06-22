@@ -24,6 +24,7 @@
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/orm": "^2.5",
         "incenteev/composer-parameter-handler": "^2.0",
+        "jwilsson/spotify-web-api-php": "^2.4",
         "matto1990/lastfm-api": "^1.5",
         "sensio/distribution-bundle": "^5.0.19",
         "sensio/framework-extra-bundle": "^5.0.0",

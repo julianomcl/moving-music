@@ -18,7 +18,7 @@ class LastFm
 
     public function __construct(ContainerInterface $container)
     {
-        $this->apiKey = $container->getParameter('last_fm_api_key');;
+        $this->apiKey = $container->getParameter('last_fm_api_key');
         try {
             $auth = new AuthApi('setsession', array(
                 'apiKey' => $this->apiKey,
