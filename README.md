@@ -23,3 +23,8 @@ Assets:
 1. Compile assets: `yarn run encore dev`
 2. Watch assets: `yarn run encore dev --watch`
 3. Compile & minify assets: `yarn run encore production`
+
+Deploy on Heroku:
+1. `heroku login`
+2. `git push heroku master`
+3. `heroku run php bin/console doctrine:schema:update --force`

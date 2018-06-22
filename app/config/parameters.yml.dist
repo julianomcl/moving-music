@@ -23,4 +23,4 @@ parameters:
 
     spotify_client_id: 5244629eb8e5424691226e8347e12c66
     spotify_client_secret: dbd023e4013d49c9b336f4d1ad9ee14e
-    spotify_redirect: ~
+    spotify_redirect: https://secure-island-98241.herokuapp.com/spotify
