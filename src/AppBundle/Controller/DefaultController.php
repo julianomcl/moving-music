@@ -19,7 +19,7 @@ class DefaultController extends Controller
      * @param LastFm $lastFm
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function topTracksAction(Request $request, LastFm $lastFm)
+    public function geoTopTracksAction(Request $request, LastFm $lastFm)
     {
         $em = $this->getDoctrine()->getManager();
         $countries = $em->getRepository(Country::class)->findBy(['active' => 1]);
@@ -27,7 +27,7 @@ class DefaultController extends Controller
         $country = $request->get('country', 'Brazil');
         $request->getSession()->set('country', $country);
         $request->getSession()->save();
-        $topTracks = $lastFm->getTopTracks($country);
+        $topTracks = $lastFm->getCountryTopTracks($country);
 
         $this->getAccess($request->getClientIp());
 
@@ -39,24 +39,41 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/spotify", name="spotify_playlist")
+     * @Route("/top-tracks", name="top_tracks")
      * @param Request $request
      * @param LastFm $lastFm
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function spotifyAction(Request $request, LastFm $lastFm)
+    public function chartTopTracksAction(Request $request, LastFm $lastFm)
+    {
+        $topTracks = $lastFm->getChartTopTracks();
+
+        $this->getAccess($request->getClientIp());
+
+        return $this->render('chart-top-tracks.html.twig', [
+            'top_tracks' => $topTracks,
+        ]);
+    }
+
+    /**
+     * @Route("/spotify/country", name="spotify_playlist_country")
+     * @param Request $request
+     * @param LastFm $lastFm
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function spotifyCountryAction(Request $request, LastFm $lastFm)
     {
         $em = $this->getDoctrine()->getManager();
 
         $country = $request->getSession()->get('country', "Brazil");
-        $topTracks = $lastFm->getTopTracks($country);
+        $topTracks = $lastFm->getCountryTopTracks($country);
 
         $access = $this->getAccess($request->getClientIp());
 
         $session = new Session(
             $this->getParameter('spotify_client_id'),
             $this->getParameter('spotify_client_secret'),
-            $this->getParameter('spotify_redirect')
+            $this->getParameter('spotify_redirect') . '/country'
         );
         $api = new SpotifyWebAPI();
         $code = $request->get('code');
@@ -121,6 +138,90 @@ class DefaultController extends Controller
         $em->flush();
 
         return $this->redirectToRoute('homepage');
+    }
+
+    /**
+     * @Route("/spotify/top-tracks", name="spotify_playlist_top_tracks")
+     * @param Request $request
+     * @param LastFm $lastFm
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function spotifyTopTracksAction(Request $request, LastFm $lastFm)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $topTracks = $lastFm->getChartTopTracks();
+
+        $access = $this->getAccess($request->getClientIp());
+
+        $session = new Session(
+            $this->getParameter('spotify_client_id'),
+            $this->getParameter('spotify_client_secret'),
+            $this->getParameter('spotify_redirect') . '/top-tracks'
+        );
+        $api = new SpotifyWebAPI();
+        $code = $request->get('code');
+        if (!empty($code)) {
+            $session->requestAccessToken($code);
+            $accessToken = $session->getAccessToken();
+            $refreshToken = $session->getRefreshToken();
+            $access
+                ->setSpotifyAccessToken($accessToken)
+                ->setSpotifyRefreshToken($refreshToken);
+
+        } else {
+            $options = [
+                'scope' => [
+                    'user-library-read',
+                    'user-library-modify',
+                    'playlist-read-private',
+                    'playlist-modify-public',
+                    'playlist-modify-private',
+                    'playlist-read-collaborative',
+                    'user-read-recently-played',
+                    'user-top-read',
+                    'user-read-private',
+                    'user-read-email',
+                    'user-read-birthdate',
+                    'streaming',
+                    'user-modify-playback-state',
+                    'user-read-currently-playing',
+                    'user-read-playback-state',
+                    'user-follow-modify',
+                    'user-follow-read',
+                    'user-read-email',
+                ],
+            ];
+
+            header('Location: ' . $session->getAuthorizeUrl($options));
+            die();
+        }
+
+        if ($access->getSpotifyAccessToken() != null) {
+            $api->setAccessToken($access->getSpotifyAccessToken());
+
+            $spotifyTracks = [];
+            foreach ($topTracks as $track) {
+                $spotifyTrack = $api->search(($track['name']." - ".$track['artist']['name']), 'track');
+                if (isset($spotifyTrack->tracks->items[0])) {
+                    $spotifyTracks[] = $spotifyTrack->tracks->items[0]->id;
+                }
+            }
+
+            $playlist = $api->createUserPlaylist($api->me()->id, [
+                'name' =>  ('Top 50 Tracks (' . (new \DateTime())->format('Y-m-d') . ')')
+            ]);
+            $api->addUserPlaylistTracks($api->me()->id, $playlist->id, $spotifyTracks);
+
+            $this->addFlash(
+                'notice',
+                'Your playlist has been created, please check your Spotify!'
+            );
+        }
+
+        $em->flush();
+
+        return $this->redirectToRoute('top_tracks');
     }
 
     /**

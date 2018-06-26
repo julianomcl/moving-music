@@ -20,18 +20,7 @@
             {% endfor %}
 
             <form action="#" method="post">
-                <label for="countries"></label>
-                <select name="country" id="countries">
-                    <option value="{{ country }}" selected>{{ country }}</option>
-                    {% for c in countries %}
-                        <option value="{{ c.country }}">
-                            {{ c.country }}
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <button class="btn btn-primary right" type="submit">Update</button>
-                <a href="{{ path('spotify_playlist_country') }}" class="btn btn-primary right">
+                <a href="{{ path('spotify_playlist_top_tracks') }}" class="btn btn-primary right">
                     <i class="fa fa-spotify" aria-hidden="true"></i> Generate This Playlist on Spotify
                 </a>
             </form>
@@ -44,7 +33,7 @@
                 </tr>
                 {% for track in top_tracks %}
                     <tr>
-                        <td>{{ track.rank + 1 }}</td>
+                        <td>{{ loop.index }}</td>
                         <td>{{ track.name }}</td>
                         <td>
                             <img src="{{ track.image.small }}" alt="{{ track.artist.name }}">

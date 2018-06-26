@@ -2,10 +2,10 @@
 
 namespace AppBundle\Service;
 
-use ErrorException;
 use Exception;
 use LastFmApi\Api\AuthApi;
 use LastFmApi\Api\ArtistApi;
+use AppBundle\Api\ChartApi;
 use LastFmApi\Api\GeoApi;
 use LastFmApi\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -15,6 +15,7 @@ class LastFm
     private $apiKey;
     private $artistApi;
     private $geoApi;
+    private $chartApi;
 
     public function __construct(ContainerInterface $container)
     {
@@ -25,6 +26,7 @@ class LastFm
             ));
             $this->artistApi = new ArtistApi($auth);
             $this->geoApi = new GeoApi($auth);
+            $this->chartApi = new ChartApi($auth);
         } catch (InvalidArgumentException $e) {
         }
     }
@@ -67,7 +69,7 @@ class LastFm
      * @param null $page
      * @return mixed
      */
-    public function getTopTracks($country, $location = null, $limit = null, $page = null)
+    public function getCountryTopTracks($country, $location = null, $limit = null, $page = null)
     {
         try {
             $topTracksInfo = $this->geoApi->getTopTracks(array(
@@ -79,6 +81,24 @@ class LastFm
 
             return $topTracksInfo;
         } catch (InvalidArgumentException $e) {
+        } catch (Exception $e) {
+        }
+    }
+
+    /**
+     * @param null $limit
+     * @param null $page
+     * @return mixed
+     */
+    public function getChartTopTracks($limit = null, $page = null)
+    {
+        try {
+            $topTracksInfo = $this->chartApi->getTopTracks(array(
+                'limit' => $limit,
+                'page' => $page
+            ));
+
+            return $topTracksInfo;
         } catch (Exception $e) {
         }
     }
