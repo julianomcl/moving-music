@@ -135,8 +135,9 @@ class DefaultController extends Controller
             $access = new Access();
             $access->setIp($ip);
             $em->persist($access);
-            $em->flush();
         }
+        $access->setUpdatedAt(new \DateTime());
+        $em->flush();
 
         return $access;
     }
