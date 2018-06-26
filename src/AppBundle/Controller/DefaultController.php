@@ -50,7 +50,7 @@ class DefaultController extends Controller
 
         $this->getAccess($request->getClientIp());
 
-        return $this->render('chart-top-tracks.html.twig', [
+        return $this->render('tracks/chart-top-tracks.html.twig', [
             'top_tracks' => $topTracks,
         ]);
     }
