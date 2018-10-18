@@ -5,7 +5,7 @@ namespace AppBundle\Service;
 use Exception;
 use LastFmApi\Api\AuthApi;
 use LastFmApi\Api\ArtistApi;
-use AppBundle\Api\ChartApi;
+use LastFmApi\Api\ChartApi;
 use LastFmApi\Api\GeoApi;
 use LastFmApi\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
